@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand Red Palette */
+  --primary-red: #DC2626;
+  --dark-red: #991B1B;
+  --deep-red: #7F1D1D;
+  --wine-red: #580B0B;
+  --darkest-red: #3A0505;
+  --light-red: #FEE2E2;
+  --card-red: #6B0E0E;
+  --card-red-hover: #7A1212;
+
+  /* Accent Gold / Yellow from Yamama Logo */
+  --primary-yellow: #F4C400;
+  --dark-yellow: #D9A900;
+  --white: #FFFFFF;
+  --cream: #FFF9E6;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-arabic: 'Amiri', serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #FFFFFF;
+  background-color: var(--deep-red);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-heading {
+  font-family: var(--font-sans);
+  letter-spacing: -0.02em;
+}
+
+/* Authentic Arabian geometric pattern with gold and red stars */
+.arabian-pattern {
+  background-color: transparent;
+  background-image: radial-gradient(rgba(244, 196, 0, 0.18) 1px, transparent 1px), radial-gradient(rgba(220, 38, 38, 0.28) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+}
+
+.arabian-pattern-dark {
+  background-image: radial-gradient(rgba(244, 196, 0, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Custom smooth animations */
+@keyframes pulseSubtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 4s infinite ease-in-out;
+}
