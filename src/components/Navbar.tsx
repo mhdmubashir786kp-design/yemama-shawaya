@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Menu as MenuIcon, X, ChevronDown, Clock, MapPin } from 'lucide-react';
+import { Phone, Menu as MenuIcon, X, ChevronDown, Clock, MapPin, Utensils } from 'lucide-react';
 import { Logo } from './Logo';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
+export type PageRoute = 'home' | 'menu' | 'about';
+
 interface NavbarProps {
-  onOpenOrderModal?: () => void;
+  activePage: PageRoute;
+  onNavigate: (page: PageRoute, sectionId?: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = () => {
+export const Navbar: React.FC<NavbarProps> = ({ activePage, onNavigate }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [callDropdownOpen, setCallDropdownOpen] = useState(false);
@@ -25,29 +28,31 @@ export const Navbar: React.FC<NavbarProps> = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { label: 'Home', href: '#home' },
-    { label: 'About', href: '#about' },
-    { label: 'Menu', href: '#menu' },
-    { label: 'Why Us', href: '#why-us' },
-    { label: 'Gallery', href: '#gallery' },
-    { label: 'Reviews', href: '#reviews' },
-    { label: 'Location', href: '#location' },
-    { label: 'Contact', href: '#contact' },
+  const navItems = [
+    { label: 'Home', page: 'home' as PageRoute, href: '#home', isDedicatedPage: true },
+    { label: 'Menu', page: 'menu' as PageRoute, href: '#menu', isDedicatedPage: true, badge: 'Popular' },
+    { label: 'About', page: 'about' as PageRoute, href: '#about', isDedicatedPage: true },
+    { label: 'Why Us', page: 'home' as PageRoute, href: '#why-us' },
+    { label: 'Gallery', page: 'home' as PageRoute, href: '#gallery' },
+    { label: 'Reviews', page: 'home' as PageRoute, href: '#reviews' },
+    { label: 'Location', page: 'home' as PageRoute, href: '#location' },
+    { label: 'Contact', page: 'home' as PageRoute, href: '#contact' },
   ];
 
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    page: PageRoute,
+    href: string,
+    isDedicatedPage?: boolean
+  ) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const targetElement = document.querySelector(href);
-    if (targetElement) {
-      const navHeight = isScrolled ? 70 : 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
+
+    if (isDedicatedPage) {
+      onNavigate(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      onNavigate('home', href);
     }
   };
 
@@ -59,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
           <div className="flex items-center space-x-6">
             <span className="flex items-center gap-1.5 text-red-200">
               <MapPin className="w-3.5 h-3.5 text-[#F4C400]" />
-              {RESTAURANT_INFO.location}
+              {RESTAURANT_INFO.shortAddress}
             </span>
             <span className="flex items-center gap-1.5 text-red-200">
               <Clock className="w-3.5 h-3.5 text-[#F4C400]" />
@@ -68,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <span className="text-red-200">Dine-in • Takeaway • Arabian Majlis</span>
+            <span className="text-red-200">Dine-in • Takeaway • Family Majlis</span>
             <span className="text-[#F4C400] font-semibold flex items-center gap-1">
               ★ {RESTAURANT_INFO.rating} ({RESTAURANT_INFO.reviewCount} Ratings)
             </span>
@@ -89,8 +94,8 @@ export const Navbar: React.FC<NavbarProps> = () => {
             {/* Logo */}
             <a
               href="#home"
-              onClick={(e) => handleLinkClick(e, '#home')}
-              className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F4C400] rounded-lg"
+              onClick={(e) => handleNavClick(e, 'home', '#home', true)}
+              className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F4C400] rounded-lg cursor-pointer"
               aria-label="Yamama Shawaya Home"
             >
               <Logo variant="header" />
@@ -98,20 +103,47 @@ export const Navbar: React.FC<NavbarProps> = () => {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={(e) => handleLinkClick(e, link.href)}
-                  className="px-3.5 py-2 text-sm font-bold text-red-100 hover:text-white hover:bg-white/10 rounded-full transition-colors duration-200"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navItems.map((item) => {
+                const isActive = item.isDedicatedPage && activePage === item.page;
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.page, item.href, item.isDedicatedPage)}
+                    className={`relative px-3.5 py-2 text-sm font-bold rounded-full transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'bg-[#F4C400] text-[#171717] font-black shadow-sm ring-1 ring-[#F4C400]'
+                        : 'text-red-100 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge && !isActive && (
+                      <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-full bg-[#F4C400] text-[#171717] font-black uppercase">
+                        {item.badge}
+                      </span>
+                    )}
+                  </a>
+                );
+              })}
             </nav>
 
-            {/* Right Action: Call Now CTA with Dropdown */}
+            {/* Right Action: Menu CTA & Call Now CTA with Dropdown */}
             <div className="hidden sm:flex items-center gap-3">
+              {/* Direct Menu Quick Button */}
+              {activePage !== 'menu' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onNavigate('menu');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="flex items-center gap-1.5 bg-[#450707] hover:bg-[#F4C400] hover:text-[#171717] text-[#F4C400] border border-[#F4C400]/60 font-black text-xs px-3.5 py-2.5 rounded-full transition-all cursor-pointer shadow-xs"
+                >
+                  <Utensils className="w-3.5 h-3.5" />
+                  <span>View Menu</span>
+                </button>
+              )}
+
               <div className="relative">
                 <button
                   type="button"
@@ -123,12 +155,16 @@ export const Navbar: React.FC<NavbarProps> = () => {
                 >
                   <Phone className="w-4 h-4 fill-current" />
                   <span>Call Now</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${callDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      callDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
 
                 {/* Call Dropdown for both lines */}
                 {callDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-60 bg-[#4A0707] rounded-2xl shadow-2xl border border-red-700/60 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 mt-2 w-64 bg-[#4A0707] rounded-2xl shadow-2xl border border-red-700/60 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-3.5 py-1.5 text-[11px] font-bold text-red-300 uppercase tracking-wider">
                       Direct Restaurant Lines
                     </div>
@@ -150,7 +186,9 @@ export const Navbar: React.FC<NavbarProps> = () => {
                     </a>
                     <div className="border-t border-red-800/80 my-1"></div>
                     <a
-                      href={`https://wa.me/${RESTAURANT_INFO.whatsappNumber}?text=${encodeURIComponent(RESTAURANT_INFO.whatsappMessage)}`}
+                      href={`https://wa.me/${RESTAURANT_INFO.whatsappNumber}?text=${encodeURIComponent(
+                        RESTAURANT_INFO.whatsappMessage
+                      )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-3.5 py-2 text-sm text-emerald-300 hover:bg-emerald-950/40 font-bold transition-colors"
@@ -189,16 +227,30 @@ export const Navbar: React.FC<NavbarProps> = () => {
         {mobileMenuOpen && (
           <div className="lg:hidden bg-[#4A0707] border-b border-red-900 animate-in slide-in-from-top duration-200 shadow-2xl">
             <div className="px-4 pt-3 pb-6 space-y-1">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={(e) => handleLinkClick(e, link.href)}
-                  className="block px-4 py-2.5 text-base font-bold text-red-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navItems.map((item) => {
+                const isActive = item.isDedicatedPage && activePage === item.page;
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.page, item.href, item.isDedicatedPage)}
+                    className={`block px-4 py-2.5 text-base font-bold rounded-xl transition-colors ${
+                      isActive
+                        ? 'bg-[#F4C400] text-[#171717] font-black'
+                        : 'text-red-100 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F4C400] text-[#171717] font-black uppercase">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </a>
+                );
+              })}
 
               <div className="pt-4 border-t border-red-900/80 mt-2 space-y-2">
                 <a

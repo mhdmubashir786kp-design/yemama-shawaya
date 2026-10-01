@@ -3,20 +3,41 @@ import { Phone, MapPin, Clock, ArrowUp, Instagram, Facebook, MessageCircle } fro
 import { Logo } from './Logo';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
-export const Footer: React.FC = () => {
+import { PageRoute } from './Navbar';
+
+interface FooterProps {
+  onNavigate?: (page: PageRoute, sectionId?: string) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const footerLinks = [
-    { label: 'Home', href: '#home' },
-    { label: 'About', href: '#about' },
-    { label: 'Menu', href: '#menu' },
-    { label: 'Why Us', href: '#why-us' },
-    { label: 'Gallery', href: '#gallery' },
-    { label: 'Reviews', href: '#reviews' },
-    { label: 'Contact', href: '#contact' },
+  const footerLinks: { label: string; page: PageRoute; href: string; isDedicated?: boolean }[] = [
+    { label: 'Home', page: 'home', href: '#home', isDedicated: true },
+    { label: 'Menu & Rate Card', page: 'menu', href: '#menu', isDedicated: true },
+    { label: 'About Us', page: 'about', href: '#about', isDedicated: true },
+    { label: 'Why Us', page: 'home', href: '#why-us' },
+    { label: 'Gallery', page: 'home', href: '#gallery' },
+    { label: 'Reviews', page: 'home', href: '#reviews' },
+    { label: 'Location & Map', page: 'home', href: '#location' },
+    { label: 'Contact & Orders', page: 'home', href: '#contact' },
   ];
+
+  const handleLinkClick = (e: React.MouseEvent, item: typeof footerLinks[0]) => {
+    e.preventDefault();
+    if (onNavigate) {
+      if (item.isDedicated) {
+        onNavigate(item.page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        onNavigate('home', item.href);
+      }
+    } else {
+      window.location.hash = item.href;
+    }
+  };
 
   return (
     <footer className="bg-[#260303] text-white pt-16 pb-12 border-t-4 border-[#DC2626] relative overflow-hidden">
@@ -78,7 +99,8 @@ export const Footer: React.FC = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-red-200 hover:text-[#F4C400] transition-colors flex items-center gap-1.5"
+                    onClick={(e) => handleLinkClick(e, link)}
+                    className="text-sm text-red-200 hover:text-[#F4C400] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <span className="text-[#F4C400] text-xs">›</span>
                     <span>{link.label}</span>

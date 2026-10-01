@@ -2,7 +2,11 @@ import React from 'react';
 import { Sparkles, Utensils, HeartHandshake, ShieldCheck, MapPin } from 'lucide-react';
 import { IMAGES, RESTAURANT_INFO } from '../data/restaurantData';
 
-export const About: React.FC = () => {
+interface AboutProps {
+  onViewFullAboutClick?: () => void;
+}
+
+export const About: React.FC<AboutProps> = ({ onViewFullAboutClick }) => {
   const features = [
     {
       icon: Sparkles,
@@ -118,6 +122,19 @@ export const About: React.FC = () => {
                 );
               })}
             </div>
+
+            {onViewFullAboutClick && (
+              <div className="mt-8">
+                <button
+                  type="button"
+                  onClick={onViewFullAboutClick}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#F4C400] hover:bg-[#D9A900] text-[#171717] font-black text-sm shadow-md transition-transform hover:scale-105 cursor-pointer"
+                >
+                  <span>Explore Our Full Story & Gallery</span>
+                  <span className="text-base font-bold">→</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
